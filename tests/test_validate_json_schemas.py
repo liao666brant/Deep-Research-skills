@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Regression test for skills/*/research/validate_json.py.
+"""Regression test for packages/*/skills/research/validate_json.py.
 
 The validator accepts EXACTLY ONE schema — the one /research actually emits:
 
@@ -23,7 +23,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-COPIES = sorted(ROOT.glob("skills/*/research/validate_json.py"))
+COPIES = sorted(ROOT.glob("packages/*/skills/research/validate_json.py"))
 
 tmp = Path(tempfile.mkdtemp())
 # The one accepted schema: fields:{<category>:[{name, detail_level}]} with NO `required` markers.
@@ -66,9 +66,9 @@ def check(label, cond):
         fails.append(label)
 
 
-assert COPIES, "no validate_json.py copies found under skills/*/research/"
+assert COPIES, "no validate_json.py copies found under packages/*/skills/research/"
 for i, path in enumerate(COPIES):
-    tag = path.relative_to(ROOT).parts[1]  # e.g. research-en
+    tag = path.relative_to(ROOT).parts[1]
     m = load(path, i)
 
     # 1. The one accepted schema parses all 4 fields; all required (no markers).
@@ -90,6 +90,15 @@ for i, path in enumerate(COPIES):
     proc = subprocess.run([sys.executable, str(path), "-f", str(tmp / "bad_schema.yaml"), "-d", str(tmp)],
                           capture_output=True, text=True)
     check(f"[{tag}] bad_schema (field_categories) is REJECTED (exit != 0)", proc.returncode != 0)
+
+    check(
+        f"[{tag}] a flat field can share a category name",
+        m.extract_json_fields({"基本信息": "在用"}) == {"基本信息"},
+    )
+    check(
+        f"[{tag}] category objects still expose their nested fields",
+        m.extract_json_fields({"基本信息": {"status": "在用"}}) == {"status"},
+    )
 
 print("\nRESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED -> {fails}")
 sys.exit(1 if fails else 0)

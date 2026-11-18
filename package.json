@@ -1,0 +1,18 @@
+{
+  "name": "opencode-deep-research-skills",
+  "version": "1.0.0",
+  "description": "OpenCode 的中文深度调研技能插件",
+  "license": "MIT",
+  "type": "module",
+  "exports": { ".": "./opencode.js" },
+  "files": [
+    "opencode.js",
+    "packages/claude-code/skills",
+    "packages/claude-code/agents",
+    "packages/claude-code/references"
+  ],
+  "dependencies": {
+    "@opencode/plugin": "2.3.1",
+    "yaml": "^2.8.1"
+  }
+}

@@ -1,170 +1,104 @@
-# Deep Research Skill for Claude Code / OpenCode / Codex
+# 深度调研插件
 
-[English](README.md) | [中文](README.zh.md)
+适用于 Claude Code、OpenCode 和 Codex。先生成并确认调研大纲，再分批搜索、校验结果并汇总成中文报告。
 
-> If you find this project helpful, please give it a star! :star:
+## 使用场景
 
-> Inspired by [RhinoInsight: Improving Deep Research through Control Mechanisms for Model Behavior and Context](https://arxiv.org/abs/2511.18743)
+- **学术研究**：论文综述、基准评测、文献分析
+- **技术研究**：技术对比、框架评估、工具选型
+- **市场研究**：竞品分析、行业趋势、产品比较
+- **尽职调查**：公司研究、投资分析、风险评估
 
-A structured research workflow skill for Claude Code, OpenCode, and Codex, supporting two-phase research: outline generation (extensible) and deep investigation. Human-in-the-loop design ensures precise control at every stage.
+## 安装
 
-![Deep Research Skills Workflow](workflow.png)
-
-## Use Cases
-
-- **Academic Research**: Paper surveys, benchmark reviews, literature analysis
-- **Technical Research**: Technology comparison, framework evaluation, tool selection
-- **Market Research**: Competitor analysis, industry trends, product comparison
-- **Due Diligence**: Company research, investment analysis, risk assessment
-
-## Installation
-
-```bash
-git clone https://github.com/Weizhena/deep-research-skills.git
-cd deep-research-skills
-```
+按所用工具执行安装命令。每个插件都包含五个中文调研技能、搜索策略和 JSON 校验脚本。
 
 ### Claude Code
+
 ```bash
-# English version
-cp -r skills/research-en/* ~/.claude/skills/
-
-# Chinese version
-cp -r skills/research-zh/* ~/.claude/skills/
-
-# Required: Install agent and modules
-cp agents/web-search-agent.md ~/.claude/agents/
-cp -r agents/web-search-modules ~/.claude/agents/
-
-# Required: Install Python dependency
-pip install pyyaml
+claude plugin marketplace add liao666brant/Deep-Research-skills &&
+claude plugin install deep-research@deep-research-skills
 ```
-
-### OpenCode (default: gpt-5.4)
-```bash
-# Skills (same as Claude Code)
-cp -r skills/research-en/* ~/.claude/skills/   # or research-zh for Chinese
-
-# Required: Enable web search for current shell
-export OPENCODE_ENABLE_EXA=1
-
-# Optional: make it permanent
-echo 'export OPENCODE_ENABLE_EXA=1' >> ~/.bashrc
-source ~/.bashrc
-
-# Required: Install agent and modules
-cp agents/web-search-opencode.md ~/.config/opencode/agents/web-search.md
-cp -r agents/web-search-modules ~/.config/opencode/agents/
-
-# Required: Install Python dependency
-pip install pyyaml
-```
-
-> **Important**: In OpenCode, ANY model's websearch requires `OPENCODE_ENABLE_EXA=1`. A plain `export` only affects the current shell; writing it to `~/.bashrc` makes it persistent. Without it, you only get `web fetch`, which is weaker for the deep research phase.
 
 ### Codex
-```bash
-# English version
-mkdir -p ~/.codex/skills ~/.codex/agents
-cp -r skills/research-codex-en/* ~/.codex/skills/
-
-# Chinese version
-mkdir -p ~/.codex/skills ~/.codex/agents
-cp -r skills/research-codex-zh/* ~/.codex/skills/
-
-# Required: Install web researcher agent and modules
-cp agents-codex/web-researcher.toml ~/.codex/agents/
-cp -r agents-codex/web-search-modules ~/.codex/agents/
-
-# Required: Install Python dependency
-pip install pyyaml
-```
-
-Add or update `~/.codex/config.toml` using either method below:
-
-**Option A: Automatic script**
 
 ```bash
-cd deep-research-skills
-bash scripts/install-codex.sh
+codex plugin marketplace add liao666brant/Deep-Research-skills &&
+codex plugin add deep-research@deep-research-skills
 ```
 
-**Option B: Manual edit**
+### OpenCode 2
 
-```toml
-suppress_unstable_features_warning = true
-
-[features]
-multi_agent = true
-default_mode_request_user_input = true
-
-[agents.web_researcher]
-description = "Use this agent when you need to research information on the internet, particularly for debugging issues, finding solutions to technical problems, or gathering comprehensive information from multiple sources. This agent excels at finding relevant discussions. Use when you need creative search strategies, thorough investigation, or compilation of findings from multiple sources."
-config_file = "agents/web-researcher.toml"
+```bash
+opencode plugin add github:liao666brant/Deep-Research-skills
 ```
 
-## Commands
+OpenCode 联网调研使用已连接的网页搜索提供商。若尚未配置，在 OpenCode 中连接一个提供商并允许网页搜索。
 
-> **Claude Code 2.1.0+**: Direct `/skill-name` trigger is now supported!
->
-> **Older versions**: Use `run /skill-name` format instead.
->
-> **Codex**: You can trigger these skills from `/skills` -> `List Skills`, or ask naturally, for example `Use the research skill to build an outline for AI Agent Demo 2025`.
+安装后打开新会话。运行深度调研前，请确认当前 Python 3 环境已安装 PyYAML。需要时在该环境中运行 `python3 -m pip install PyYAML`。
 
-| Command (2.1.0+) | Description |
-|------------------|-------------|
-| `/research` | Generate research outline with items and fields |
-| `/research-add-items` | Add more research items to existing outline |
-| `/research-add-fields` | Add more field definitions to existing outline |
-| `/research-deep` | Deep research each item with parallel agents |
-| `/research-report` | Generate markdown report from JSON results |
+## 命令
 
-## Workflow & Example
+在 Claude Code 中输入 `/deep-research:research`。在 Codex 中用 `/skills` 选择 `deep-research:research`。在 OpenCode 中输入 `@research`。
 
-> **Example**: Researching "AI Agent Demo 2025"
+| 命令 | 用途 |
+| --- | --- |
+| `research` | 生成调研对象清单和字段定义 |
+| `research-add-items` | 向现有大纲补充调研对象 |
+| `research-add-fields` | 向现有大纲补充字段定义 |
+| `research-deep` | 并行调研各对象并校验 JSON 结果 |
+| `research-report` | 将 JSON 结果汇总为 Markdown 报告 |
 
-### Phase 1: Generate Outline
-```
-/research AI Agent Demo 2025
-```
-💡 **What will happen**: Tell it your topic → It creates a research list for you
+## 工作流 & 示例
 
-**You get**: A list of 17 AI Agents to research (ChatGPT Agent, Claude Computer Use, Cursor, etc.) + what info to collect for each
+以「2025 年 AI Agent 演示」为例，调研各产品的发布时间、主要能力和使用条件。下面的示例可以直接发给 Claude Code、Codex 或 OpenCode。
 
-### (Optional) Not satisfied? Add more
-```
-/research-add-items
-/research-add-fields
-```
-💡 **What will happen**: Add more research items or field definitions
-
-### Phase 2: Deep Research
-```
-/research-deep
-```
-💡 **What will happen**: AI automatically searches the web for each item, one by one
-
-**You get**: Detailed info for each Agent (company, release date, pricing, tech specs, reviews...)
-
-### Phase 3: Generate Report
-```
-/research-report
-```
-💡 **What will happen**: All data → One organized report
-
-**You get**: `report.md` - A complete markdown report with table of contents, ready to read or share
-
-## Need Help?
-
-If you have questions, ask Claude Code, OpenCode, or Codex to explain this project:
-```
-Help me understand this project: https://github.com/Weizhena/deep-research-skills
+```mermaid
+flowchart LR
+    A["生成调研大纲"] --> B{"确认对象和字段"}
+    B -->|需要补充| C["增加对象或字段"]
+    C --> B
+    B -->|确认| D["分批搜索与校验"]
+    D --> E["生成中文报告"]
 ```
 
-## References
+### 1. 生成调研大纲
 
-- RhinoInsight: Improving Deep Research through Control Mechanisms for Model Behavior and Context
+```text
+用 research 技能为「2025 年 AI Agent 演示」生成调研大纲。重点比较发布日期、主要能力和使用条件。
+```
 
-## License
+确认调研范围、对象和字段后，你会得到 `outline.yaml` 和 `fields.yaml`。前者记录调研对象和执行配置，后者记录每个对象要查哪些信息。
 
-MIT
+### 按需补充调研对象或字段
+
+如果清单里还缺产品，或者有新的问题要查，可以分别发送下面的指令。
+
+```text
+用 research-add-items 把 Claude Computer Use 加入调研清单。
+用 research-add-fields 在「使用条件」下补充「何时需要人工介入」这个字段。
+```
+
+确认后，技能会分别更新 `outline.yaml` 或 `fields.yaml`。
+
+### 2. 分批深度调研
+
+```text
+用 research-deep 按已确认的大纲开始调研。
+```
+
+技能会分批并行搜索，将每个对象的结果保存为 JSON，并按 `fields.yaml` 校验字段覆盖情况。暂时无法确认的值会标记为 `[不确定]`。每批结束后，由你决定是否继续。
+
+### 3. 生成报告
+
+```text
+用 research-report 汇总调研结果。如果有发布日期，把它显示在报告目录里。
+```
+
+你会得到 `report.md`。目录可以显示选定的摘要字段，并跳转到每个对象的详情。报告会跳过标记为不确定的字段值。
+
+## 来源和许可证
+
+本仓库派生自 [Deep Research Skills](https://github.com/Weizhena/Deep-Research-skills)。项目灵感来自论文 [RhinoInsight: Improving Deep Research through Control Mechanisms for Model Behavior and Context](https://arxiv.org/abs/2511.18743)。
+
+采用 [MIT 许可证](LICENSE)。

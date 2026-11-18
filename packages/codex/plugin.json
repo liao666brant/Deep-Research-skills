@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "deep-research",
+  "version": "1.0.0",
+  "description": "用中文生成调研大纲、并行搜索、校验结果并汇总报告。",
+  "extensions": {
+    "com.openai": {
+      "interface": { "displayName": "深度调研", "category": "Productivity" }
+    }
+  }
+}

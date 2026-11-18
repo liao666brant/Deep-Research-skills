@@ -1,0 +1,12 @@
+{
+  "name": "deep-research-skills",
+  "description": "深度调研技能的插件市场。",
+  "owner": { "name": "liao666brant" },
+  "plugins": [
+    {
+      "name": "deep-research",
+      "source": "./packages/claude-code",
+      "description": "用中文生成调研大纲、并行搜索、校验结果并汇总报告。"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "deep-research",
+  "version": "1.0.0",
+  "description": "用中文生成调研大纲、并行搜索、校验结果并汇总报告。",
+  "author": { "name": "liao666brant" },
+  "repository": "https://github.com/liao666brant/Deep-Research-skills",
+  "license": "MIT"
+}
