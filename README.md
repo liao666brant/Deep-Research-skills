@@ -13,25 +13,60 @@
 
 按所用工具执行安装命令。每个插件都包含五个中文调研技能、搜索策略和 JSON 校验脚本。
 
-### Claude Code
+### 用户级安装
+
+#### Claude Code
 
 ```bash
 claude plugin marketplace add liao666brant/Deep-Research-skills &&
 claude plugin install deep-research@deep-research-skills
 ```
 
-### Codex
+#### Codex
 
 ```bash
 codex plugin marketplace add liao666brant/Deep-Research-skills &&
 codex plugin add deep-research@deep-research-skills
 ```
 
-### OpenCode 2
+#### OpenCode 2
 
 ```bash
 opencode plugin add github:liao666brant/Deep-Research-skills
 ```
+
+### 项目级安装
+
+在目标项目的根目录执行对应命令。
+
+#### Claude Code
+
+```bash
+claude plugin marketplace add liao666brant/Deep-Research-skills --scope project &&
+claude plugin install deep-research@deep-research-skills --scope project
+```
+
+市场和插件启用项会写入 `.claude/settings.json`。团队共享该文件后，其他成员在各自的机器上运行第二条命令下载插件。
+
+#### Codex
+
+使用 [uv](https://docs.astral.sh/uv/getting-started/installation/) 运行安装脚本。它会合并项目市场和 `.codex/config.toml` 中的插件设置，依赖由 uv 单独管理。同名插件的来源不同时，脚本会提示冲突并保留现有配置。
+
+```bash
+uv run --script "https://raw.githubusercontent.com/liao666brant/Deep-Research-skills/master/scripts/install-project.py" codex
+```
+
+打开并信任该项目，Codex 会加载项目配置并准备插件。首次可在 `/plugins` 查看插件状态。
+
+#### OpenCode 2
+
+脚本会在项目已有的 `opencode.json` 或 `opencode.jsonc` 中补充插件条目，并保留注释。首次配置时会创建 `opencode.json`。如果项目配置停用了插件，脚本会指出对应文件和停用项。
+
+```bash
+uv run --script "https://raw.githubusercontent.com/liao666brant/Deep-Research-skills/master/scripts/install-project.py" opencode
+```
+
+从该项目启动 OpenCode，等待插件加载。
 
 OpenCode 联网调研使用已连接的网页搜索提供商。若尚未配置，在 OpenCode 中连接一个提供商并允许网页搜索。
 
